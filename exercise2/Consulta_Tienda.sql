@@ -136,41 +136,42 @@ LEFT JOIN producto AS p
 ON f.codigo = p.codigo_fabricante;
 
 -- 2. Devuelve un listado donde sólo aparezcan aquellos fabricantes que no tienen ningúnproducto asociado.
--- SELECT p.nombre, precio, f.nombre  
--- FROM fabricante AS f
--- LEFT JOIN producto AS p
--- ON f.codigo = p.codigo_fabricante;
+SELECT p.nombre, precio, f.nombre  
+FROM fabricante AS f
+LEFT JOIN producto AS p
+ON f.codigo = p.codigo_fabricante
+WHERE p.nombre IS NULL;
 
 -- Subconsultas (En la cláusula WHERE) Con operadores básicos de comparación
 -- 1. Devuelve todos los productos del fabricante Lenovo. (Sin utilizar INNER JOIN).
 SELECT nombre, codigo_fabricante
 FROM producto 
-WHERE codigo_fabricante = 
-(SELECT codigo 
-FROM fabricante 
-WHERE nombre='Lenovo');
+WHERE codigo_fabricante = (
+	SELECT codigo 
+	FROM fabricante 
+	WHERE nombre='Lenovo');
 
 -- 2. Devuelve todos los datos de los productos que tienen el mismo precio que el producto
 -- más caro del fabricante Lenovo. (Sin utilizar INNER JOIN).
 SELECT *
 FROM producto
 WHERE precio = (
-SELECT precio
-FROM producto 
-WHERE codigo_fabricante = 
-(SELECT codigo 
-FROM fabricante 
-WHERE nombre='Lenovo')
-ORDER BY precio DESC 
-LIMIT 1);
+	SELECT precio
+	FROM producto 
+	WHERE codigo_fabricante = (
+		SELECT codigo 
+		FROM fabricante 
+		WHERE nombre='Lenovo')
+	ORDER BY precio DESC 
+	LIMIT 1);
 
 -- 3. Lista el nombre del producto más caro del fabricante Lenovo.
 SELECT nombre
 FROM producto 
-WHERE codigo_fabricante = 
-(SELECT codigo 
-FROM fabricante 
-WHERE nombre='Lenovo')
+WHERE codigo_fabricante = (
+	SELECT codigo 
+	FROM fabricante 
+	WHERE nombre='Lenovo')
 ORDER BY precio DESC 
 LIMIT 1;
 
@@ -178,45 +179,45 @@ LIMIT 1;
 -- medio de todos sus productos.
 SELECT *
 FROM producto
-WHERE codigo_fabricante = 
-(SELECT codigo 
-FROM fabricante 
-WHERE nombre='Lenovo' AND precio > (
-SELECT AVG(precio)
-FROM producto 
-WHERE codigo_fabricante = 
-(SELECT codigo 
-FROM fabricante 
-WHERE nombre='Asus')));
+WHERE codigo_fabricante = (
+	SELECT codigo 
+	FROM fabricante 
+	WHERE nombre='Lenovo' AND precio > (
+		SELECT AVG(precio)
+		FROM producto 
+		WHERE codigo_fabricante = (
+			SELECT codigo 
+			FROM fabricante 
+			WHERE nombre='Asus')));
 
 -- Subconsultas con IN y NOT IN
 -- 1. Devuelve los nombres de los fabricantes que tienen productos asociados. (Utilizando IN o NOT IN).
 SELECT nombre 
 FROM fabricante
-WHERE codigo IN 
-(SELECT codigo_fabricante
-FROM producto);
+WHERE codigo IN (
+	SELECT codigo_fabricante
+	FROM producto);
 
 -- 2. Devuelve los nombres de los fabricantes que no tienen productos asociados. (Utilizando IN o NOT IN).
 SELECT nombre 
 FROM fabricante
-WHERE codigo NOT IN 
-(SELECT codigo_fabricante
-FROM producto);
+WHERE codigo NOT IN (
+	SELECT codigo_fabricante
+	FROM producto);
 
 -- Subconsultas (En la cláusula HAVING)
 -- 1. Devuelve un listado con todos los nombres de los fabricantes que tienen el mismo número
 -- de productos que el fabricante Lenovo.
 SELECT nombre
 FROM fabricante
-WHERE codigo IN
-(SELECT codigo_fabricante
-FROM producto
-GROUP BY codigo_fabricante
-HAVING COUNT(*) =
-(SELECT COUNT(*)
-FROM producto
-WHERE codigo_fabricante = 
-(SELECT codigo 
-FROM fabricante 
-WHERE nombre='Lenovo')));
+WHERE codigo IN(
+	SELECT codigo_fabricante
+	FROM producto
+	GROUP BY codigo_fabricante
+	HAVING COUNT(*) = (
+		SELECT COUNT(*)
+		FROM producto
+		WHERE codigo_fabricante = (
+			SELECT codigo 
+			FROM fabricante 
+			WHERE nombre='Lenovo')));
